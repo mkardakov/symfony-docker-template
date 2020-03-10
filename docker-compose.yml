@@ -1,0 +1,42 @@
+version: "3.1"
+volumes:
+  mysql-data:
+services:
+  php:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    volumes:
+      - .:/usr/share/nginx/html
+      - ./docker/php/php.ini:/usr/local/etc/php/php.ini
+
+  web:
+    image: nginx:latest
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/usr/share/nginx/html:ro
+      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+
+  mysql:
+    image: mysql:5.7
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_USER: wheel
+      MYSQL_PASSWORD: wheel
+      MYSQL_DATABASE: disco
+      MYSQL_RANDOM_ROOT_PASSWORD: 1
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./docker/mysql/my.cnf:/etc/mysql/my.cnf
+
+  rabbitmq:
+    image: rabbitmq:3.6.10-management
+    ports:
+      - "15671:15671"
+      - "15672:15672"
+      - "4369:4369"
+      - "5671:5671"
+      - "5672:5672"
+      - "25672:25672"
